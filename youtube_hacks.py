@@ -245,7 +245,8 @@ def store_data_sql(filterdata):
         
         if conn:
             cursor = conn.cursor()
-            mongoclient = pymongo.MongoClient('mongodb://localhost:27017/')
+            mongourl = st.secrets["MONGOURL"]
+            mongoclient = pymongo.MongoClient(mongourl)
             db = mongoclient['YoutubeHacks']
             collection = db['ChannelData']
             fields = "channel.Channel_Id"
