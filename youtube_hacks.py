@@ -199,7 +199,7 @@ def store_data_mongo(alldata):
         client = pymongo.MongoClient(mongourl)
         db = client['YoutubeHacks']
         collection = db['ChannelData']
-        jsondata = open('channeldata.json')
+        #jsondata = open('channeldata.json')
         channel_data = alldata
         fields = "channel.Channel_Id"
         value = channel_data["channel"]["Channel_Id"]
@@ -264,7 +264,7 @@ def store_data_sql(filterdata):
                 st.write("Channel Data Inserted Already!. Try with another Channel")
             else:            
                 # Insert Channel data
-                q1="INSERT INTO Channeldata (channel_id, channel_name, subscription_count, channel_views, playlist_count, channel_description) VALUES (%s, %s, %s, %s, %s, %s)"
+                q1="INSERT INTO channeldata (channel_id, channel_name, subscription_count, channel_views, playlist_count, channel_description) VALUES (%s, %s, %s, %s, %s, %s)"
                 data = (document['channel']['Channel_Id'],document['channel']['Channel_name'],document['channel']['Subscription_count'],document['channel']['Channel_views'],document['channel']['Playlist_count'],document['channel']['Channel_description'])
                 cursor.execute(q1,data)
                 
@@ -321,11 +321,11 @@ def create_database(db,sql_host,sql_user,sql_pass):
             for i,table in zip(dtable,tables):
                 if i.lower() != table[0].lower():
                     if i=='channeldata':
-                        cursor.execute("create table Channeldata(channel_id varchar(255),channel_name varchar(255),subscription_count int,channel_views int,playlist_count int,channel_description text)")
+                        cursor.execute("create table channeldata(channel_id varchar(255),channel_name varchar(255),subscription_count int,channel_views int,playlist_count int,channel_description text)")
                     elif i=='commentdata':
                         cursor.execute("create table commentdata(comment_id varchar(255),video_id varchar(255),comment_text text,comment_author varchar(255),comment_published_date datetime)")
                     elif i=='playlistdata':
-                        cursor.execute("create table Playlistdata(playlist_id varchar(255),channel_id varchar(255),playlist_name varchar(255))")
+                        cursor.execute("create table playlistdata(playlist_id varchar(255),channel_id varchar(255),playlist_name varchar(255))")
                     elif i=='videodata':
                         cursor.execute("create table videodata(video_id varchar(255),playlist_id varchar(255),video_name varchar(255),video_description text,published_date datetime,view_count int, like_count int,comment_count int,duration int,thumbnail varchar(255),caption_status varchar(255))")
             conn.close()
@@ -339,25 +339,25 @@ def query_sql_data(pos):
     conn = sql_connect()
     cursor = conn.cursor()
     if pos==1:
-        q = "SELECT vd.video_name, cd.channel_name FROM Videodata AS vd JOIN Playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN Channeldata AS cd ON pd.channel_id = cd.channel_id"
+        q = "SELECT vd.video_name, cd.channel_name FROM videodata AS vd JOIN playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN channeldata AS cd ON pd.channel_id = cd.channel_id"
     elif pos==2:
-        q="SELECT cd.channel_name, COUNT(vd.video_id) AS video_count FROM Channeldata AS cd JOIN Playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN Videodata AS vd ON pd.playlist_id = vd.playlist_id GROUP BY cd.channel_name ORDER BY video_count DESC;"
+        q="SELECT cd.channel_name, COUNT(vd.video_id) AS video_count FROM channeldata AS cd JOIN playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN videodata AS vd ON pd.playlist_id = vd.playlist_id GROUP BY cd.channel_name ORDER BY video_count DESC;"
     elif pos==3:
-        q="SELECT vd.video_name, cd.channel_name, vd.view_count FROM Videodata AS vd JOIN Playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN Channeldata AS cd ON pd.channel_id = cd.channel_id ORDER BY vd.view_count DESC LIMIT 10;"
+        q="SELECT vd.video_name, cd.channel_name, vd.view_count FROM videodata AS vd JOIN playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN channeldata AS cd ON pd.channel_id = cd.channel_id ORDER BY vd.view_count DESC LIMIT 10;"
     elif pos==4:
-        q="SELECT vd.video_name, COUNT(c.comment_id) AS comment_count FROM Videodata AS vd LEFT JOIN Commentdata AS c ON vd.video_id = c.video_id GROUP BY vd.video_name;"
+        q="SELECT vd.video_name, COUNT(c.comment_id) AS comment_count FROM videodata AS vd LEFT JOIN commentdata AS c ON vd.video_id = c.video_id GROUP BY vd.video_name;"
     elif pos==5:
-        q="SELECT vd.video_name, cd.channel_name, vd.like_count FROM Videodata AS vd JOIN Playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN Channeldata AS cd ON pd.channel_id = cd.channel_id WHERE (vd.like_count, cd.channel_id) IN ( SELECT MAX(v.like_count), p.channel_id FROM Videodata AS v JOIN Playlistdata AS p ON v.playlist_id = p.playlist_id GROUP BY p.channel_id ) ORDER BY vd.like_count DESC;"
+        q="SELECT vd.video_name, cd.channel_name, vd.like_count FROM videodata AS vd JOIN playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN channeldata AS cd ON pd.channel_id = cd.channel_id WHERE (vd.like_count, cd.channel_id) IN ( SELECT MAX(v.like_count), p.channel_id FROM videodata AS v JOIN playlistdata AS p ON v.playlist_id = p.playlist_id GROUP BY p.channel_id ) ORDER BY vd.like_count DESC;"
     elif pos==6:
-        q="SELECT vd.video_name, cd.channel_name, vd.like_count FROM Videodata AS vd JOIN Playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN Channeldata AS cd ON pd.channel_id = cd.channel_id ORDER BY vd.like_count DESC;"
+        q="SELECT vd.video_name, cd.channel_name, vd.like_count FROM videodata AS vd JOIN playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN channeldata AS cd ON pd.channel_id = cd.channel_id ORDER BY vd.like_count DESC;"
     elif pos==7:
-        q="SELECT cd.channel_name, SUM(vd.view_count) AS total_views FROM Channeldata AS cd JOIN Playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN Videodata AS vd ON pd.playlist_id = vd.playlist_id GROUP BY cd.channel_name;"
+        q="SELECT cd.channel_name, SUM(vd.view_count) AS total_views FROM channeldata AS cd JOIN playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN videodata AS vd ON pd.playlist_id = vd.playlist_id GROUP BY cd.channel_name;"
     elif pos==8:
-        q="SELECT DISTINCT cd.channel_name FROM Channeldata AS cd JOIN Playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN Videodata AS vd ON pd.playlist_id = vd.playlist_id WHERE YEAR(STR_TO_DATE(vd.published_date, '%Y-%m-%dT%H:%i:%sZ')) = 2022;"
+        q="SELECT DISTINCT cd.channel_name FROM channeldata AS cd JOIN playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN videodata AS vd ON pd.playlist_id = vd.playlist_id WHERE YEAR(STR_TO_DATE(vd.published_date, '%Y-%m-%dT%H:%i:%sZ')) = 2022;"
     elif pos==9:
-        q="SELECT cd.channel_name, AVG(vd.duration) AS average_duration FROM Channeldata AS cd JOIN Playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN Videodata AS vd ON pd.playlist_id = vd.playlist_id GROUP BY cd.channel_name;"
+        q="SELECT cd.channel_name, AVG(vd.duration) AS average_duration FROM channeldata AS cd JOIN playlistdata AS pd ON cd.channel_id = pd.channel_id JOIN videodata AS vd ON pd.playlist_id = vd.playlist_id GROUP BY cd.channel_name;"
     elif pos==10:
-        q="SELECT vd.video_name, cd.channel_name, COUNT(cm.comment_id) AS comment_count FROM Videodata AS vd JOIN Playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN Channeldata AS cd ON pd.channel_id = cd.channel_id JOIN Commentdata AS cm ON vd.video_id = cm.video_id GROUP BY vd.video_name, cd.channel_name ORDER BY comment_count DESC;"
+        q="SELECT vd.video_name, cd.channel_name, COUNT(cm.comment_id) AS comment_count FROM videodata AS vd JOIN playlistdata AS pd ON vd.playlist_id = pd.playlist_id JOIN channeldata AS cd ON pd.channel_id = cd.channel_id JOIN commentdata AS cm ON vd.video_id = cm.video_id GROUP BY vd.video_name, cd.channel_name ORDER BY comment_count DESC;"
     if pos:
         cursor.execute(q)
         rows = cursor.fetchall()
