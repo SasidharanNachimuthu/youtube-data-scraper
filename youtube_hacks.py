@@ -226,8 +226,10 @@ def sql_connect():
     sql_user = st.secrets["DB_USER"]
     sql_password = st.secrets["DB_PASS"]
     dbname = st.secrets["DB_NAME"]    
+    sql_port = st.secrets["DB_PORT"]
     conn = mysql.connector.connect(
             host=sql_host,
+            port=sql_port,
             user=sql_user,
             password=sql_password,
             database = dbname
