@@ -1,6 +1,6 @@
 google_api_python_client==2.86.0
 isodate==0.6.1
-mysql-connector-python==0.3.1
+mysql-connector-python
 pandas==1.4.1
 pymongo==4.3.3
 streamlit==1.22.0
