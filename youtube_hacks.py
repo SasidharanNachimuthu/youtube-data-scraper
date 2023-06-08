@@ -194,8 +194,9 @@ def get_comments_data(youtube,playlistitemId):
 
 def store_data_mongo(alldata):
     # Set up MongoDB connection
+    mongourl = st.secrets["MONGOURL"]
     try :
-        client = pymongo.MongoClient(MONGOURL)
+        client = pymongo.MongoClient(mongourl)
         db = client['YoutubeHacks']
         collection = db['ChannelData']
         jsondata = open('channeldata.json')
@@ -221,10 +222,10 @@ def store_data_mongo(alldata):
         st.write(e)
         
 def sql_connect():
-    sql_host = DB_HOST
-    sql_user = DB_USER
-    sql_password = DB_PASS
-    dbname = DB_NAME    
+    sql_host = st.secrets["DB_HOST"]
+    sql_user = st.secrets["DB_USER"]
+    sql_password = st.secrets["DB_PASS"]
+    dbname = st.secrets["DB_NAME"]    
     conn = mysql.connector.connect(
             host=sql_host,
             user=sql_user,
