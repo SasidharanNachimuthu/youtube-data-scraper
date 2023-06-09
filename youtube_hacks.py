@@ -9,8 +9,7 @@ from googleapiclient.discovery import build
 
 
 
-def youtube_api_connect():
-    api_key = "AIzaSyA4t8OTcPFtxuV19tBBbUpEH2xPDKkTVeM" #st.secrets["API_KEY"]
+def youtube_api_connect(api_key):
     youtube = build("youtube", "v3", developerKey=api_key)
     return youtube
 
@@ -155,8 +154,8 @@ def get_comments_data(youtube, video_id):
         return []
 
 
-def get_multiple_channel_data(channel_ids):
-    youtube = youtube_api_connect()
+def get_multiple_channel_data(channel_ids,api_key):
+    youtube = youtube_api_connect(api_key)
     channel_id_list = channel_ids.split(",")
     all_data = []
     datas = []
@@ -190,7 +189,7 @@ def get_multiple_channel_data(channel_ids):
 
 
 def store_data_mongo(alldata):
-    mongourl = "mongodb://localhost:27017" #st.secrets["MONGOURL"]
+    mongourl = st.secrets["MONGOURL"]
     try:
         with pymongo.MongoClient(mongourl) as client:
             db = client['YoutubeHacks']
@@ -223,11 +222,11 @@ def store_data_mongo(alldata):
 
         
 def sql_connect():
-    sql_host = 'localhost' #st.secrets["DB_HOST"]
-    sql_user = 'root' #st.secrets["DB_USER"]
-    sql_password ='root' #st.secrets["DB_PASS"]
-    dbname = 'youtubehacks' #st.secrets["DB_NAME"]    
-    sql_port = 3306 #st.secrets["DB_PORT"]
+    sql_host = st.secrets["DB_HOST"]
+    sql_user = st.secrets["DB_USER"]
+    sql_password =st.secrets["DB_PASS"]
+    dbname = st.secrets["DB_NAME"]    
+    sql_port = st.secrets["DB_PORT"]
     conn = mysql.connector.connect(
             host=sql_host,
             port=sql_port,
@@ -241,7 +240,7 @@ def sql_connect():
 def store_data_sql(conn,cursor,filterdata):
     try:
         if conn:
-            mongourl = "mongodb://localhost:27017" #st.secrets["MONGOURL"]
+            mongourl = st.secrets["MONGOURL"]
             mongoclient = pymongo.MongoClient(mongourl)
             db = mongoclient['YoutubeHacks']
             collection = db['ChannelData']
@@ -401,7 +400,7 @@ def main():
         c_id = st.text_input("Channel ID:")
         
         if c_id and apikey:
-            chdata, alldata = get_multiple_channel_data(c_id)
+            chdata, alldata = get_multiple_channel_data(c_id,apikey)
             st.json(chdata)
             
             if st.button("Store Data"):
