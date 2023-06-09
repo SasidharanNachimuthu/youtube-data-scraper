@@ -270,21 +270,24 @@ def store_data_sql(filterdata):
                 cursor.execute(q1,data)
                 
                 # Insert Playlist Data
+                data2=[]
                 for i in document['channel']['Playlists']:
                     st.write(i['playlist_name'])
-                    q2 = "INSERT INTO playlistdata(playlist_id,channel_id,playlist_name) VALUES(%s,%s,%s)"
-                    data2= (i['playlist_id'],document['channel']['Channel_Id'],i['playlist_name'])
-                    cursor.execute(q2,data2)
+                    data2.append((i['playlist_id'],document['channel']['Channel_Id'],i['playlist_name']))
                     # Insert video Data
+                    data3=[]
                     for j in i['videos']:
-                        q3 = "INSERT INTO videodata(video_id,playlist_id,video_name,video_description,published_date,view_count,like_count,comment_count,duration,thumbnail,caption_status) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-                        data3=(j['Video_Id'],i['playlist_id'],j['Video_Name'],j['Video_Description'],j['PublishedAt'],j['View_Count'],j['Like_Count'],j['Comment_Count'],j['Duration'],j['Thumbnail'],j['Caption_Status'])
-                        cursor.execute(q3,data3)
+                        data3.append((j['Video_Id'],i['playlist_id'],j['Video_Name'],j['Video_Description'],j['PublishedAt'],j['View_Count'],j['Like_Count'],j['Comment_Count'],j['Duration'],j['Thumbnail'],j['Caption_Status']))
                         # Insert Comment Data
+                        data4 = []
                         for z in j['Comments']:
-                            q4 = "INSERT INTO commentdata(comment_id,video_id,comment_text,comment_author,comment_published_date) VALUES (%s,%s,%s,%s,%s)"
-                            data4 = (z['Comment_Id'],j['Video_Id'],z['Comment_Text'],z['Comment_Author'],z['Comment_PublishedAt'])
-                            cursor.execute(q4,data4)
+                            data4.append((z['Comment_Id'],j['Video_Id'],z['Comment_Text'],z['Comment_Author'],z['Comment_PublishedAt']))
+                        q4 = "INSERT INTO commentdata(comment_id,video_id,comment_text,comment_author,comment_published_date) VALUES (%s,%s,%s,%s,%s)"    
+                        cursor.execute(q4,data4)
+                    q3 = "INSERT INTO videodata(video_id,playlist_id,video_name,video_description,published_date,view_count,like_count,comment_count,duration,thumbnail,caption_status) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+                    cursor.execute(q3,data3)
+                q2 = "INSERT INTO playlistdata(playlist_id,channel_id,playlist_name) VALUES(%s,%s,%s)"
+                cursor.execute(q2,data2)
                 st.write("Channel Data Stored!")
             conn.commit()
 
