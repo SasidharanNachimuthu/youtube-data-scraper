@@ -283,11 +283,11 @@ def store_data_sql(filterdata):
                         for z in j['Comments']:
                             data4.append((z['Comment_Id'],j['Video_Id'],z['Comment_Text'],z['Comment_Author'],z['Comment_PublishedAt']))
                         q4 = "INSERT INTO commentdata(comment_id,video_id,comment_text,comment_author,comment_published_date) VALUES (%s,%s,%s,%s,%s)"    
-                        cursor.execute(q4,data4)
+                        cursor.executemany(q4,data4)
                     q3 = "INSERT INTO videodata(video_id,playlist_id,video_name,video_description,published_date,view_count,like_count,comment_count,duration,thumbnail,caption_status) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-                    cursor.execute(q3,data3)
+                    cursor.executemany(q3,data3)
                 q2 = "INSERT INTO playlistdata(playlist_id,channel_id,playlist_name) VALUES(%s,%s,%s)"
-                cursor.execute(q2,data2)
+                cursor.executemany(q2,data2)
                 st.write("Channel Data Stored!")
             conn.commit()
 
