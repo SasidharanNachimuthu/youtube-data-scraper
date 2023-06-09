@@ -271,6 +271,7 @@ def store_data_sql(filterdata):
                 
                 # Insert Playlist Data
                 for i in document['channel']['Playlists']:
+                    st.write(i['playlist_name'])
                     q2 = "INSERT INTO playlistdata(playlist_id,channel_id,playlist_name) VALUES(%s,%s,%s)"
                     data2= (i['playlist_id'],document['channel']['Channel_Id'],i['playlist_name'])
                     cursor.execute(q2,data2)
